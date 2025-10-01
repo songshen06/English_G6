@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英语六年级上册闪卡学习系统</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>英语六年级上册闪卡学习系统</h1>
+            <p>English Grade 6 Flashcard Learning System</p>
+        </header>
+
+        <nav class="main-nav">
+            <button id="vocabBtn" class="nav-btn active">核心单词</button>
+            <button id="phraseBtn" class="nav-btn">重点短语</button>
+            <button id="sentenceBtn" class="nav-btn">句型练习</button>
+        </nav>
+
+        <div class="controls">
+            <div class="unit-selector">
+                <label for="unitSelect">选择单元:</label>
+                <select id="unitSelect">
+                    <option value="all">全部单元</option>
+                    <option value="1">Module 1: How long?</option>
+                    <option value="2">Module 2: Chinatown and Tombs</option>
+                    <option value="3">Module 3: Stamps and Hobbies</option>
+                    <option value="4">Module 4: Festivals</option>
+                    <option value="5">Module 5: Pen Friends</option>
+                    <option value="6">Module 6: School and Answers</option>
+                    <option value="7">Module 7: Animals</option>
+                    <option value="8">Module 8: Habits and Tidy Room</option>
+                    <option value="9">Module 9: Peace and UN</option>
+                    <option value="10">Module 10: Travel and Safety</option>
+                </select>
+            </div>
+
+            <div class="study-controls">
+                <button id="shuffleBtn" class="control-btn">随机顺序</button>
+                <button id="autoPlayBtn" class="control-btn">自动播放</button>
+                <button id="repeatBtn" class="control-btn">重复模式</button>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <main>
+            <div class="flashcard-container">
+                <div class="flashcard" id="flashcard">
+                    <div class="card-front" id="cardFront">
+                        <div class="english-text" id="englishText">Click to start</div>
+                        <div class="pronunciation-btn" id="pronunciationBtn">
+                            <span class="speaker-icon">🔊</span>
+                        </div>
+                    </div>
+                    <div class="card-back" id="cardBack">
+                        <div class="chinese-text" id="chineseText">点击开始学习</div>
+                        <div class="unit-info" id="unitInfo">Module 1</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="navigation">
+                <button id="prevBtn" class="nav-arrow">← 上一张</button>
+                <div class="card-counter">
+                    <span id="currentCard">0</span> / <span id="totalCards">0</span>
+                </div>
+                <button id="nextBtn" class="nav-arrow">下一张 →</button>
+            </div>
+
+            <div class="difficulty-buttons">
+                <button id="hardBtn" class="difficulty-btn hard">困难</button>
+                <button id="goodBtn" class="difficulty-btn good">一般</button>
+                <button id="easyBtn" class="difficulty-btn easy">简单</button>
+            </div>
+        </main>
+
+        <div class="stats-panel">
+            <h3>学习统计</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalStudied">0</div>
+                    <div class="stat-label">已学习</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="correctCount">0</div>
+                    <div class="stat-label">简单</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="hardCount">0</div>
+                    <div class="stat-label">困难</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="studyTime">0</div>
+                    <div class="stat-label">学习时间(分钟)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pandoc:*)",
+      "Bash(open:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
