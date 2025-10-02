@@ -91,12 +91,17 @@ const flashcardData = {
         { english: "climb the stairs to the top", chinese: "爬楼梯到顶部", unit: 1 },
 
         // Module 2: Chinatown and Tombs
-        { english: "send an email", chinese: "发送邮件", unit: 2 },
-        { english: "have a big surprise", chinese: "大吃一惊", unit: 2 },
-        { english: "lots and lots of", chinese: "许多", unit: 2 },
-        { english: "be different from", chinese: "与...不同", unit: 2 },
+        { english: "send an email", chinese: "发邮件", unit: 2 },
+        { english: "have a big surprise", chinese: "得到一个大惊喜", unit: 2 },
+        { english: "lots and lots of", chinese: "许多许多", unit: 2 },
+        { english: "be different from", chinese: "异于，与……不同", unit: 2 },
         { english: "see a lion dance", chinese: "看舞狮", unit: 2 },
+        { english: "look at this photo", chinese: "看这些照片", unit: 2 },
         { english: "the Ming Tombs", chinese: "明十三陵", unit: 2 },
+        { english: "lots of stone animals", chinese: "许多石头动物", unit: 2 },
+        { english: "a big red gate", chinese: "红色大门", unit: 2 },
+        { english: "write a story in English", chinese: "写英语故事", unit: 2 },
+        { english: "meet a farmer", chinese: "遇到农场主", unit: 2 },
 
         // Module 3: Stamps and Hobbies
         { english: "put … into", chinese: "把...放进", unit: 3 },
