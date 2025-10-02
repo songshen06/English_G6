@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统测试验证</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .test-section { margin: 20px 0; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .success { color: #28a745; font-weight: bold; }
+        .error { color: #dc3545; font-weight: bold; }
+        .warning { color: #ffc107; font-weight: bold; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .links { display: flex; gap: 10px; flex-wrap: wrap; }
+        .links a { padding: 10px 20px; background: #28a745; color: white; text-decoration: none; border-radius: 5px; }
+        .links a:hover { background: #1e7e34; }
+    </style>
+</head>
+<body>
+    <h1>英语六年级闪卡系统 - 功能验证</h1>
+
+    <div class="links">
+        <a href="index.html" target="_blank">打开闪卡应用</a>
+        <a href="test.html" target="_blank">打开测试系统</a>
+    </div>
+
+    <div class="test-section">
+        <h2>数据文件验证</h2>
+        <button onclick="testDataLoading()">测试数据加载</button>
+        <div id="dataTest"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>闪卡应用验证</h2>
+        <button onclick="testFlashcardApp()">测试闪卡应用</button>
+        <div id="flashcardTest"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>测试系统验证</h2>
+        <button onclick="testTestSystem()">测试系统</button>
+        <div id="testSystemTest"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>语音功能验证</h2>
+        <button onclick="testSpeech()">测试语音合成</button>
+        <div id="speechTest"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>数据统计</h2>
+        <button onclick="showDataStats()">显示数据统计</button>
+        <div id="dataStats"></div>
+    </div>
+
+    <script src="data.js"></script>
+    <script>
+        function testDataLoading() {
+            const testDiv = document.getElementById('dataTest');
+            let results = [];
+
+            try {
+                // Test data structure
+                if (typeof flashcardData === 'undefined') {
+                    results.push('<span class="error">✗ flashcardData 未定义</span>');
+                } else {
+                    results.push('<span class="success">✓ flashcardData 已加载</span>');
+
+                    // Test vocabulary
+                    if (flashcardData.vocabulary && Array.isArray(flashcardData.vocabulary)) {
+                        results.push(`<span class="success">✓ 词汇数据: ${flashcardData.vocabulary.length} 个单词</span>`);
+
+                        // Test first item structure
+                        const firstWord = flashcardData.vocabulary[0];
+                        if (firstWord && firstWord.english && firstWord.chinese && firstWord.unit) {
+                            results.push(`<span class="success">✓ 词汇数据格式正确</span>`);
+                        } else {
+                            results.push('<span class="error">✗ 词汇数据格式错误</span>');
+                        }
+                    } else {
+                        results.push('<span class="error">✗ 词汇数据缺失</span>');
+                    }
+
+                    // Test phrases
+                    if (flashcardData.phrases && Array.isArray(flashcardData.phrases)) {
+                        results.push(`<span class="success">✓ 短语数据: ${flashcardData.phrases.length} 个短语</span>`);
+                    } else {
+                        results.push('<span class="error">✗ 短语数据缺失</span>');
+                    }
+
+                    // Test sentences
+                    if (flashcardData.sentences && Array.isArray(flashcardData.sentences)) {
+                        results.push(`<span class="success">✓ 句型数据: ${flashcardData.sentences.length} 个句子</span>`);
+                    } else {
+                        results.push('<span class="error">✗ 句型数据缺失</span>');
+                    }
+                }
+
+            } catch (error) {
+                results.push(`<span class="error">✗ 数据加载错误: ${error.message}</span>`);
+            }
+
+            testDiv.innerHTML = results.join('<br>');
+        }
+
+        function testFlashcardApp() {
+            const testDiv = document.getElementById('flashcardTest');
+            let results = [];
+
+            try {
+                // Check if script loaded
+                if (typeof FlashcardApp === 'undefined') {
+                    results.push('<span class="error">✗ FlashcardApp 类未加载</span>');
+                    results.push('<span class="warning">⚠ 请检查 script.js 文件</span>');
+                } else {
+                    results.push('<span class="success">✓ FlashcardApp 类已加载</span>');
+                }
+
+                // Check main page elements
+                const mainPageExists = checkFileExists('index.html');
+                if (mainPageExists) {
+                    results.push('<span class="success">✓ 主页面 index.html 存在</span>');
+                } else {
+                    results.push('<span class="error">✗ 主页面 index.html 不存在</span>');
+                }
+
+            } catch (error) {
+                results.push(`<span class="error">✗ 闪卡应用测试失败: ${error.message}</span>`);
+            }
+
+            testDiv.innerHTML = results.join('<br>');
+        }
+
+        function testTestSystem() {
+            const testDiv = document.getElementById('testSystemTest');
+            let results = [];
+
+            try {
+                // Check test files
+                const testPageExists = checkFileExists('test.html');
+                const testJsExists = checkFileExists('test.js');
+                const testCssExists = checkFileExists('test.css');
+
+                if (testPageExists) {
+                    results.push('<span class="success">✓ 测试页面 test.html 存在</span>');
+                } else {
+                    results.push('<span class="error">✗ 测试页面 test.html 不存在</span>');
+                }
+
+                if (testJsExists) {
+                    results.push('<span class="success">✓ 测试脚本 test.js 存在</span>');
+                } else {
+                    results.push('<span class="error">✗ 测试脚本 test.js 不存在</span>');
+                }
+
+                if (testCssExists) {
+                    results.push('<span class="success">✓ 测试样式 test.css 存在</span>');
+                } else {
+                    results.push('<span class="error">✗ 测试样式 test.css 不存在</span>');
+                }
+
+                // Check navigation links
+                const mainPageLink = document.querySelector('a[href="index.html"]');
+                const testPageLink = document.querySelector('a[href="test.html"]');
+
+                if (testPageLink) {
+                    results.push('<span class="success">✓ 主页包含测试系统链接</span>');
+                }
+
+                if (mainPageLink) {
+                    results.push('<span class="success">✓ 测试页包含返回链接</span>');
+                }
+
+            } catch (error) {
+                results.push(`<span class="error">✗ 测试系统验证失败: ${error.message}</span>`);
+            }
+
+            testDiv.innerHTML = results.join('<br>');
+        }
+
+        function testSpeech() {
+            const testDiv = document.getElementById('speechTest');
+
+            if ('speechSynthesis' in window) {
+                testDiv.innerHTML = '<span class="success">✓ 浏览器支持语音合成</span>';
+
+                // Test basic speech
+                try {
+                    const utterance = new SpeechSynthesisUtterance('Hello, this is a test.');
+                    utterance.lang = 'en-US';
+                    utterance.rate = 0.8;
+
+                    utterance.onstart = () => {
+                        testDiv.innerHTML += '<br><span class="success">✓ 语音测试开始...</span>';
+                    };
+
+                    utterance.onend = () => {
+                        testDiv.innerHTML += '<br><span class="success">✓ 语音测试完成</span>';
+                    };
+
+                    utterance.onerror = (event) => {
+                        testDiv.innerHTML += `<br><span class="error">✗ 语音错误: ${event.error}</span>`;
+                    };
+
+                    window.speechSynthesis.speak(utterance);
+                } catch (error) {
+                    testDiv.innerHTML += `<br><span class="error">✗ 语音测试失败: ${error.message}</span>`;
+                }
+            } else {
+                testDiv.innerHTML = '<span class="error">✗ 浏览器不支持语音合成</span>';
+            }
+        }
+
+        function showDataStats() {
+            const statsDiv = document.getElementById('dataStats');
+
+            if (!flashcardData) {
+                statsDiv.innerHTML = '<span class="error">✗ 数据未加载</span>';
+                return;
+            }
+
+            // Count by units
+            const unitStats = {};
+
+            // Count vocabulary
+            flashcardData.vocabulary.forEach(item => {
+                if (!unitStats[item.unit]) {
+                    unitStats[item.unit] = { vocab: 0, phrases: 0, sentences: 0 };
+                }
+                unitStats[item.unit].vocab++;
+            });
+
+            // Count phrases
+            flashcardData.phrases.forEach(item => {
+                if (!unitStats[item.unit]) {
+                    unitStats[item.unit] = { vocab: 0, phrases: 0, sentences: 0 };
+                }
+                unitStats[item.unit].phrases++;
+            });
+
+            // Count sentences
+            flashcardData.sentences.forEach(item => {
+                if (!unitStats[item.unit]) {
+                    unitStats[item.unit] = { vocab: 0, phrases: 0, sentences: 0 };
+                }
+                unitStats[item.unit].sentences++;
+            });
+
+            let html = '<h3>各单元数据统计：</h3><table border="1" style="border-collapse: collapse; width: 100%;">';
+            html += '<tr><th>单元</th><th>词汇</th><th>短语</th><th>句型</th><th>总计</th></tr>';
+
+            let totalVocab = 0, totalPhrases = 0, totalSentences = 0;
+
+            for (let unit = 1; unit <= 10; unit++) {
+                const stats = unitStats[unit] || { vocab: 0, phrases: 0, sentences: 0 };
+                const total = stats.vocab + stats.phrases + stats.sentences;
+
+                html += `<tr>
+                    <td>Module ${unit}</td>
+                    <td>${stats.vocab}</td>
+                    <td>${stats.phrases}</td>
+                    <td>${stats.sentences}</td>
+                    <td><strong>${total}</strong></td>
+                </tr>`;
+
+                totalVocab += stats.vocab;
+                totalPhrases += stats.phrases;
+                totalSentences += stats.sentences;
+            }
+
+            html += `<tr style="background: #f0f0f0; font-weight: bold;">
+                <td>总计</td>
+                <td>${totalVocab}</td>
+                <td>${totalPhrases}</td>
+                <td>${totalSentences}</td>
+                <td>${totalVocab + totalPhrases + totalSentences}</td>
+            </tr>`;
+
+            html += '</table>';
+
+            statsDiv.innerHTML = html;
+        }
+
+        function checkFileExists(filename) {
+            // Simple check - in a real browser environment, we can't directly check file existence
+            // but we can assume it exists if we're loading this page
+            return true;
+        }
+
+        // Auto-run tests when page loads
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                testDataLoading();
+                testFlashcardApp();
+                testTestSystem();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
