@@ -19,15 +19,28 @@ class FlashcardApp {
             startTime: Date.now()
         };
         this.autoPlayInterval = null;
+        this.audioManager = null;
 
         this.init();
     }
 
     init() {
+        // 初始化音频管理器
+        this.initAudioManager();
+
         this.loadData();
         this.bindEvents();
         this.updateDisplay();
         this.updateStats();
+    }
+
+    initAudioManager() {
+        if (typeof AudioManager !== 'undefined') {
+            this.audioManager = new AudioManager();
+            console.log('音频管理器已初始化');
+        } else {
+            console.warn('AudioManager 未找到，将使用传统语音合成');
+        }
     }
 
     loadData() {
@@ -220,21 +233,43 @@ class FlashcardApp {
         }
     }
 
-    playPronunciation() {
-        if ('speechSynthesis' in window) {
-            const currentCard = this.filteredData[this.currentIndex];
-            if (currentCard) {
-                // Cancel any ongoing speech
-                window.speechSynthesis.cancel();
+    async playPronunciation() {
+        const currentCard = this.filteredData[this.currentIndex];
+        if (!currentCard) return;
 
-                const utterance = new SpeechSynthesisUtterance(currentCard.english);
-                utterance.lang = 'en-US';
-                utterance.rate = 0.8;
-                utterance.pitch = 1;
-                utterance.volume = 1;
+        // 优先使用音频管理器播放本地文件
+        if (this.audioManager) {
+            try {
+                const success = await this.audioManager.playAudio(
+                    currentCard.english,
+                    this.currentData
+                );
 
-                window.speechSynthesis.speak(utterance);
+                if (success) {
+                    console.log('使用本地音频文件播放成功');
+                    return;
+                }
+            } catch (error) {
+                console.warn('音频管理器播放失败，使用备用方法:', error);
             }
+        }
+
+        // 回退到传统的Web Speech API
+        this.playWebSpeechFallback(currentCard.english);
+    }
+
+    playWebSpeechFallback(text) {
+        if ('speechSynthesis' in window) {
+            // Cancel any ongoing speech
+            window.speechSynthesis.cancel();
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.8;
+            utterance.pitch = 1;
+            utterance.volume = 1;
+
+            window.speechSynthesis.speak(utterance);
         }
     }
 

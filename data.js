@@ -204,45 +204,45 @@ const flashcardData = {
 
     sentences: [
         // Module 1: How long?
-        { english: "How long is the Great Wall? It's more than forty thousand li long.", chinese: "长城有多长？它超过四万华里。", unit: 1 },
-        { english: "How old is it? It's more than two thousand years old.", chinese: "它有多久历史？它超过两千年历史。", unit: 1 },
+        { english: "How long is the Great Wall? It's more than forty thousand li long.", chinese: "长城有多长？它超过四万华里。", unit: 1, keyWords: ["Great Wall", "long", "more than", "thousand"] },
+        { english: "How old is it? It's more than two thousand years old.", chinese: "它有多久历史？它超过两千年历史。", unit: 1, keyWords: ["old", "more than", "thousand", "years"] },
 
         // Module 2: Chinatown and Tombs
-        { english: "I went to Chinatown in New York yesterday.", chinese: "我昨天去了纽约的唐人街。", unit: 2 },
-        { english: "We saw a lion dance in the street.", chinese: "我们在街上看到了舞狮。", unit: 2 },
+        { english: "I went to Chinatown in New York yesterday.", chinese: "我昨天去了纽约的唐人街。", unit: 2, keyWords: ["went", "Chinatown", "New York", "yesterday"] },
+        { english: "We saw a lion dance in the street.", chinese: "我们在街上看到了舞狮。", unit: 2, keyWords: ["saw", "lion dance", "street"] },
 
         // Module 3: Stamps and Hobbies
-        { english: "What are you doing? I'm putting my new stamps into my stamp book.", chinese: "你在做什么？我正在把新邮票放进邮票册里。", unit: 3 },
-        { english: "Have you got any stamps from China? No, I haven't.", chinese: "你有来自中国的邮票吗？不，我没有。", unit: 3 },
+        { english: "What are you doing? I'm putting my new stamps into my stamp book.", chinese: "你在做什么？我正在把新邮票放进邮票册里。", unit: 3, keyWords: ["doing", "putting", "stamps", "stamp book"] },
+        { english: "Have you got any stamps from China? No, I haven't.", chinese: "你有来自中国的邮票吗？不，我没有。", unit: 3, keyWords: ["got", "stamps", "China"] },
 
         // Module 4: Festivals
-        { english: "What do you do on Thanksgiving? We always have a big, special dinner.", chinese: "你在感恩节做什么？我们总是吃一顿丰盛的特别晚餐。", unit: 4 },
-        { english: "We say 'Thank you' for our food, family and friends.", chinese: "我们为我们的食物、家人和朋友说谢谢。", unit: 4 },
+        { english: "What do you do on Thanksgiving? We always have a big, special dinner.", chinese: "你在感恩节做什么？我们总是吃一顿丰盛的特别晚餐。", unit: 4, keyWords: ["Thanksgiving", "always", "special", "dinner"] },
+        { english: "We say 'Thank you' for our food, family and friends.", chinese: "我们为我们的食物、家人和朋友说谢谢。", unit: 4, keyWords: ["Thank you", "food", "family", "friends"] },
 
         // Module 5: Pen Friends
-        { english: "She can speak some English.", chinese: "她会说一些英语。", unit: 5 },
-        { english: "Can I write to her? Of course. You can write to her in English.", chinese: "我可以给她写信吗？当然。你可以用英语给她写信。", unit: 5 },
+        { english: "She can speak some English.", chinese: "她会说一些英语。", unit: 5, keyWords: ["speak", "English"] },
+        { english: "Can I write to her? Of course. You can write to her in English.", chinese: "我可以给她写信吗？当然。你可以用英语给她写信。", unit: 5, keyWords: ["write", "Of course", "English"] },
 
         // Module 6: School and Answers
-        { english: "I've got some Chinese chopsticks.", chinese: "我有一些中国筷子。", unit: 6 },
-        { english: "My brother has got a Chinese kite.", chinese: "我哥哥有一个中国风筝。", unit: 6 },
-        { english: "Have you got a book about the US?", chinese: "你有一本关于美国的书吗？", unit: 6 },
+        { english: "I've got some Chinese chopsticks.", chinese: "我有一些中国筷子。", unit: 6, keyWords: ["got", "Chinese", "chopsticks"] },
+        { english: "My brother has got a Chinese kite.", chinese: "我哥哥有一个中国风筝。", unit: 6, keyWords: ["brother", "got", "Chinese", "kite"] },
+        { english: "Have you got a book about the US?", chinese: "你有一本关于美国的书吗？", unit: 6, keyWords: ["got", "book", "about"] },
 
         // Module 7: Animals
-        { english: "Pandas love bamboo. They eat for twelve hours a day!", chinese: "熊猫喜欢竹子。它们一天吃十二个小时！", unit: 7 },
-        { english: "Do snakes love music? No, they don't. They're almost deaf!", chinese: "蛇喜欢音乐吗？不，它们不喜欢。它们几乎聋了！", unit: 7 },
+        { english: "Pandas love bamboo. They eat for twelve hours a day!", chinese: "熊猫喜欢竹子。它们一天吃十二个小时！", unit: 7, keyWords: ["Pandas", "love", "bamboo", "eat", "hours"] },
+        { english: "Do snakes love music? No, they don't. They're almost deaf!", chinese: "蛇喜欢音乐吗？不，它们不喜欢。它们几乎聋了！", unit: 7, keyWords: ["snakes", "love", "music", "almost", "deaf"] },
 
         // Module 8: Habits and Tidy Room
-        { english: "Do you often tidy your bed? Yes, every day.", chinese: "你经常整理床铺吗？是的，每天。", unit: 8 },
-        { english: "Do you often read stories? Yes. I read stories every day.", chinese: "你经常读故事吗？是的。我每天都读故事。", unit: 8 },
+        { english: "Do you often tidy your bed? Yes, every day.", chinese: "你经常整理床铺吗？是的，每天。", unit: 8, keyWords: ["often", "tidy", "bed", "every day"] },
+        { english: "Do you often read stories? Yes. I read stories every day.", chinese: "你经常读故事吗？是的。我每天都读故事。", unit: 8, keyWords: ["often", "read", "stories", "every day"] },
 
         // Module 9: Peace and UN
-        { english: "Is this the UN building? Yes. It's a very important building in New York.", chinese: "这是联合国大楼吗？是的。它是纽约一个非常重要的建筑。", unit: 9 },
-        { english: "The UN wants to make peace in the world.", chinese: "联合国想在世界上缔造和平。", unit: 9 },
-        { english: "China is one of the 193 member states in the UN.", chinese: "中国是联合国193个成员国之一。", unit: 9 },
+        { english: "Is this the UN building? Yes. It's a very important building in New York.", chinese: "这是联合国大楼吗？是的。它是纽约一个非常重要的建筑。", unit: 9, keyWords: ["UN building", "important", "building", "New York"] },
+        { english: "The UN wants to make peace in the world.", chinese: "联合国想在世界上缔造和平。", unit: 9, keyWords: ["UN", "wants", "make peace", "world"] },
+        { english: "China is one of the 193 member states in the UN.", chinese: "中国是联合国193个成员国之一。", unit: 9, keyWords: ["China", "one of", "member states", "UN"] },
 
         // Module 10: Travel and Safety
-        { english: "Only drink clean water!", chinese: "只喝干净的水！", unit: 10 },
-        { english: "This water is very clean. It's fun to drink this way.", chinese: "这水很干净。这样喝水很有趣。", unit: 10 }
+        { english: "Only drink clean water!", chinese: "只喝干净的水！", unit: 10, keyWords: ["only", "drink", "clean", "water"] },
+        { english: "This water is very clean. It's fun to drink this way.", chinese: "这水很干净。这样喝水很有趣。", unit: 10, keyWords: ["water", "clean", "fun", "drink"] }
     ]
 };

@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音频功能测试</title>
+    <link rel="stylesheet" href="test.css">
+    <style>
+        .audio-test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8f9fa;
+            min-height: 100vh;
+        }
+        .test-section {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        .audio-btn {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(72, 187, 120, 0.3);
+            margin: 5px;
+        }
+        .audio-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, #38a169, #2f855a);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
+        }
+        .audio-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .word-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .test-word {
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            user-select: none;
+            text-align: center;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .test-word:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(66, 153, 225, 0.4);
+        }
+        .test-word::after {
+            content: '🔊';
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.8rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .test-word:hover::after {
+            opacity: 0.6;
+        }
+        .status-display {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: monospace;
+            min-height: 100px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 4px;
+        }
+        .log-entry.info {
+            background: #bee3f8;
+            color: #2c5282;
+        }
+        .log-entry.success {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        .log-entry.error {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+    </style>
+</head>
+<body>
+    <div class="audio-test-container">
+        <header class="test-header">
+            <h1>🔊 音频功能测试</h1>
+            <p>测试语音合成和音频播放功能</p>
+        </header>
+
+        <div class="test-section">
+            <h2>浏览器兼容性检查</h2>
+            <div id="compatibility-check"></div>
+            <button class="audio-btn" onclick="checkCompatibility()">检查兼容性</button>
+        </div>
+
+        <div class="test-section">
+            <h2>句子音频测试</h2>
+            <p>点击按钮播放完整句子的音频：</p>
+            <div style="margin-top: 15px;">
+                <button class="audio-btn" id="sentenceBtn1" onclick="testSentence('Hello, how are you today?')">
+                    🔊 播放句子 1
+                </button>
+                <button class="audio-btn" id="sentenceBtn2" onclick="testSentence('What time is it now?')">
+                    🔊 播放句子 2
+                </button>
+                <button class="audio-btn" id="sentenceBtn3" onclick="testSentence('I love learning English.')">
+                    🔊 播放句子 3
+                </button>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>单词音频测试</h2>
+            <p>点击单词块播放单词发音：</p>
+            <div class="word-grid">
+                <div class="test-word" onclick="testWord('Hello')">Hello</div>
+                <div class="test-word" onclick="testWord('World')">World</div>
+                <div class="test-word" onclick="testWord('English')">English</div>
+                <div class="test-word" onclick="testWord('Learning')">Learning</div>
+                <div class="test-word" onclick="testWord('Beautiful')">Beautiful</div>
+                <div class="test-word" onclick="testWord('Wonderful')">Wonderful</div>
+                <div class="test-word" onclick="testWord('Amazing')">Amazing</div>
+                <div class="test-word" onclick="testWord('Excellent')">Excellent</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>音频队列测试</h2>
+            <p>测试多个音频的队列播放：</p>
+            <button class="audio-btn" onclick="testAudioQueue()">
+                🎵 播放单词序列
+            </button>
+            <button class="audio-btn" onclick="clearQueue()">
+                🗑️ 清空队列
+            </button>
+        </div>
+
+        <div class="test-section">
+            <h2>状态日志</h2>
+            <div class="status-display" id="statusLog"></div>
+            <button class="audio-btn" onclick="clearLog()">
+                🗑️ 清空日志
+            </button>
+        </div>
+
+        <div class="test-section">
+            <h2>完整测试</h2>
+            <p>运行完整的音频功能测试：</p>
+            <button class="audio-btn" onclick="runFullTest()">
+                ▶️ 运行完整测试
+            </button>
+            <div style="margin-top: 15px;">
+                <a href="test.html" class="audio-btn" style="text-decoration: none; display: inline-block;">
+                    📚 进入测试系统
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script>
+        // 模拟测试系统的音频功能
+        class AudioTestSystem {
+            constructor() {
+                this.audioQueue = [];
+                this.isSpeaking = false;
+            }
+
+            playSentenceAudio(sentence, buttonId) {
+                this.log('开始播放句子: ' + sentence, 'info');
+
+                if ('speechSynthesis' in window) {
+                    this.addToAudioQueue({
+                        type: 'sentence',
+                        text: sentence,
+                        buttonId: buttonId,
+                        rate: 0.9
+                    });
+                    this.processAudioQueue();
+                } else {
+                    this.log('浏览器不支持语音合成', 'error');
+                    this.updateAudioButtonState(buttonId, '🔇 不支持音频', true, 'error');
+                }
+            }
+
+            playWordAudio(word) {
+                this.log('开始播放单词: ' + word, 'info');
+
+                if ('speechSynthesis' in window && word) {
+                    this.addToAudioQueue({
+                        type: 'word',
+                        text: word,
+                        rate: 0.8
+                    });
+                    this.processAudioQueue();
+                } else {
+                    this.log('浏览器不支持语音合成', 'error');
+                }
+            }
+
+            addToAudioQueue(audioItem) {
+                this.audioQueue.push(audioItem);
+                if (this.audioQueue.length > 5) {
+                    this.audioQueue = this.audioQueue.slice(-5);
+                }
+                this.log('添加到音频队列: ' + audioItem.text + ' (队列长度: ' + this.audioQueue.length + ')', 'info');
+            }
+
+            processAudioQueue() {
+                if (this.isSpeaking || this.audioQueue.length === 0) {
+                    return;
+                }
+
+                this.isSpeaking = true;
+                const audioItem = this.audioQueue.shift();
+
+                window.speechSynthesis.cancel();
+
+                const utterance = new SpeechSynthesisUtterance(audioItem.text);
+                utterance.lang = 'en-US';
+                utterance.rate = audioItem.rate;
+                utterance.pitch = 1;
+                utterance.volume = 1;
+
+                if (audioItem.buttonId) {
+                    this.updateAudioButtonState(audioItem.buttonId, '🔊 播放中...', true);
+                }
+
+                utterance.onend = () => {
+                    this.isSpeaking = false;
+                    this.log('播放完成: ' + audioItem.text, 'success');
+
+                    if (audioItem.buttonId) {
+                        this.updateAudioButtonState(audioItem.buttonId, '🔊 播放音频', false);
+                    }
+
+                    setTimeout(() => {
+                        this.processAudioQueue();
+                    }, 200);
+                };
+
+                utterance.onerror = (event) => {
+                    this.log('播放错误: ' + audioItem.text + ' - ' + event.error, 'error');
+                    this.isSpeaking = false;
+
+                    if (audioItem.buttonId) {
+                        this.updateAudioButtonState(audioItem.buttonId, '🔊 播放音频', false);
+                    }
+
+                    setTimeout(() => {
+                        this.processAudioQueue();
+                    }, 200);
+                };
+
+                window.speechSynthesis.speak(utterance);
+                this.log('正在播放: ' + audioItem.text, 'info');
+            }
+
+            updateAudioButtonState(buttonId, text, disabled, state = 'normal') {
+                const audioBtn = document.getElementById(buttonId);
+                if (audioBtn) {
+                    audioBtn.textContent = text;
+                    audioBtn.disabled = disabled;
+                    if (state === 'error') {
+                        audioBtn.style.background = 'linear-gradient(135deg, #e53e3e, #c53030)';
+                    }
+                }
+            }
+
+            clearAudioQueue() {
+                this.audioQueue = [];
+                window.speechSynthesis.cancel();
+                this.isSpeaking = false;
+                this.log('音频队列已清空', 'info');
+            }
+
+            log(message, type = 'info') {
+                const logContainer = document.getElementById('statusLog');
+                const logEntry = document.createElement('div');
+                logEntry.className = 'log-entry ' + type;
+                const timestamp = new Date().toLocaleTimeString();
+                logEntry.textContent = `[${timestamp}] ${message}`;
+                logContainer.appendChild(logEntry);
+                logContainer.scrollTop = logContainer.scrollHeight;
+            }
+        }
+
+        // 创建音频测试系统实例
+        const audioTest = new AudioTestSystem();
+
+        // 测试函数
+        function testSentence(sentence) {
+            audioTest.playSentenceAudio(sentence, 'sentenceBtn1');
+        }
+
+        function testWord(word) {
+            audioTest.playWordAudio(word);
+        }
+
+        function testAudioQueue() {
+            const words = ['Hello', 'World', 'This', 'Is', 'A', 'Test'];
+            words.forEach((word, index) => {
+                setTimeout(() => {
+                    audioTest.playWordAudio(word);
+                }, index * 1000);
+            });
+        }
+
+        function clearQueue() {
+            audioTest.clearAudioQueue();
+        }
+
+        function clearLog() {
+            document.getElementById('statusLog').innerHTML = '';
+        }
+
+        function checkCompatibility() {
+            const container = document.getElementById('compatibility-check');
+            let html = '<ul style="list-style: none; padding: 0;">';
+
+            if ('speechSynthesis' in window) {
+                html += '<li style="color: green;">✅ 语音合成支持</li>';
+
+                // 获取可用的语音
+                const voices = speechSynthesis.getVoices();
+                const englishVoices = voices.filter(voice => voice.lang.startsWith('en'));
+
+                if (englishVoices.length > 0) {
+                    html += `<li style="color: green;">✅ 找到 ${englishVoices.length} 个英语语音</li>`;
+                } else {
+                    html += '<li style="color: orange;">⚠️ 未找到英语语音</li>';
+                }
+            } else {
+                html += '<li style="color: red;">❌ 语音合成不支持</li>';
+            }
+
+            if ('draggable' in document.createElement('div')) {
+                html += '<li style="color: green;">✅ HTML5拖拽支持</li>';
+            } else {
+                html += '<li style="color: red;">❌ HTML5拖拽不支持</li>';
+            }
+
+            html += '</ul>';
+            container.innerHTML = html;
+        }
+
+        function runFullTest() {
+            audioTest.log('=== 开始完整音频测试 ===', 'info');
+
+            // 测试句子音频
+            setTimeout(() => {
+                testSentence('Hello, this is a test of the audio system.');
+            }, 1000);
+
+            // 测试单词音频
+            setTimeout(() => {
+                testWord('Beautiful');
+            }, 4000);
+
+            // 测试音频队列
+            setTimeout(() => {
+                testAudioQueue();
+            }, 6000);
+
+            // 完成测试
+            setTimeout(() => {
+                audioTest.log('=== 完整音频测试完成 ===', 'success');
+            }, 12000);
+        }
+
+        // 页面加载完成后检查兼容性
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(checkCompatibility, 500);
+
+            // 确保语音列表已加载
+            if (speechSynthesis.onvoiceschanged !== undefined) {
+                speechSynthesis.onvoiceschanged = checkCompatibility;
+            }
+        });
+    </script>
+</body>
+</html>

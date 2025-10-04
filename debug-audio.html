@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音频播放调试</title>
+    <link rel="stylesheet" href="test.css">
+    <style>
+        .debug-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8f9fa;
+            min-height: 100vh;
+        }
+        .debug-section {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        .debug-btn {
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        .debug-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, #3182ce, #2c5282);
+            transform: translateY(-1px);
+        }
+        .debug-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .status {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .status.success {
+            border-color: #48bb78;
+            background: #f0fff4;
+        }
+        .status.error {
+            border-color: #f56565;
+            background: #fff5f5;
+        }
+        .highlight {
+            background: yellow;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-container">
+        <header class="test-header">
+            <h1>🔍 音频播放调试</h1>
+            <p>检查音频播放功能的具体实现</p>
+        </header>
+
+        <div class="debug-section">
+            <h2>当前实现分析</h2>
+            <h3>1. 音频按钮创建</h3>
+            <div class="code-block">
+// 在 displaySentenceOrderQuestion 方法中：
+const hintElement = document.createElement('div');
+hintElement.innerHTML = `
+    &lt;div class="audio-controls"&gt;
+        &lt;button class="audio-btn" id="playAudioBtn"&gt;
+            🔊 播放音频
+        &lt;/button&gt;
+    &lt;/div&gt;
+`;
+
+// 添加事件监听器
+const audioBtn = document.getElementById('playAudioBtn');
+if (audioBtn) {
+    audioBtn.addEventListener('click', () => {
+        this.playSentenceAudio(question.originalSentence);
+    });
+}
+            </div>
+
+            <h3>2. 音频播放方法</h3>
+            <div class="code-block">
+playSentenceAudio(sentence, buttonId = 'playAudioBtn') {
+    if ('speechSynthesis' in window) {
+        // 添加到音频队列
+        this.addToAudioQueue({
+            type: 'sentence',
+            text: sentence,
+            buttonId: buttonId,
+            rate: 0.9
+        });
+        this.processAudioQueue();
+    } else {
+        console.warn('浏览器不支持语音合成功能');
+        this.updateAudioButtonState(buttonId, '🔇 不支持音频', true, 'error');
+    }
+}
+            </div>
+
+            <h3>3. 数据来源</h3>
+            <div class="code-block">
+// 问题对象结构：
+{
+    type: 'sentence-order',
+    question: '请将下面的单词块拖拽排序，组成正确的句子',
+    originalSentence: "How long is the Great Wall? It's more than forty thousand li long.",
+    chineseTranslation: "长城有多长？它超过四万华里。",
+    unit: 1,
+    wordChunks: ["How", "long", "is", "the", "Great", "Wall", "?" ...],
+    correctOrder: ["How", "long", "is", "the", "Great", "Wall", "?" ...],
+    keyWords: ["Great Wall", "long", "more than", "thousand"]
+}
+            </div>
+        </div>
+
+        <div class="debug-section">
+            <h2>实际测试</h2>
+            <p>让我们模拟实际的句子排序场景：</p>
+
+            <div class="status" id="testStatus">
+                准备测试...
+            </div>
+
+            <button class="debug-btn" onclick="testAudioImplementation()">
+                🔧 测试音频实现
+            </button>
+            <button class="debug-btn" onclick="testDirectSpeech()">
+                🔊 直接测试语音
+            </button>
+            <button class="debug-btn" onclick="testWithRealData()">
+                📚 使用真实数据测试
+            </button>
+            <button class="debug-btn" onclick="checkDOMElements()">
+                🕵️ 检查DOM元素
+            </button>
+        </div>
+
+        <div class="debug-section">
+            <h2>问题诊断</h2>
+            <div id="diagnosis" class="status">
+                点击上面的测试按钮开始诊断...
+            </div>
+        </div>
+
+        <div class="debug-section">
+            <h2>完整句子排序模拟</h2>
+            <div id="sentenceOrderSimulator"></div>
+            <button class="debug-btn" onclick="simulateSentenceOrder()">
+                🎯 模拟句子排序界面
+            </button>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script>
+        class DebugAudioSystem {
+            constructor() {
+                this.audioQueue = [];
+                this.isSpeaking = false;
+                this.currentSentence = null;
+            }
+
+            log(message, type = 'info') {
+                const diagnosis = document.getElementById('diagnosis');
+                const status = document.getElementById('testStatus');
+
+                const statusClass = type === 'error' ? 'error' : 'success';
+                const statusText = `[${new Date().toLocaleTimeString()}] ${message}`;
+
+                diagnosis.innerHTML = `<div class="status ${statusClass}">${statusText}</div>`;
+                status.innerHTML = `<div class="status ${statusClass}">${statusText}</div>`;
+
+                console.log(`[DEBUG] ${message}`);
+            }
+
+            // 复制实际的音频播放方法
+            playSentenceAudio(sentence, buttonId = 'playAudioBtn') {
+                this.log(`开始播放句子音频: "${sentence}"`, 'info');
+                this.currentSentence = sentence;
+
+                if ('speechSynthesis' in window) {
+                    this.log('浏览器支持语音合成', 'info');
+
+                    // 添加到音频队列
+                    this.addToAudioQueue({
+                        type: 'sentence',
+                        text: sentence,
+                        buttonId: buttonId,
+                        rate: 0.9
+                    });
+                    this.processAudioQueue();
+                } else {
+                    this.log('❌ 浏览器不支持语音合成功能', 'error');
+                    this.updateAudioButtonState(buttonId, '🔇 不支持音频', true, 'error');
+                }
+            }
+
+            addToAudioQueue(audioItem) {
+                this.audioQueue.push(audioItem);
+                if (this.audioQueue.length > 5) {
+                    this.audioQueue = this.audioQueue.slice(-5);
+                }
+                this.log(`添加到音频队列: "${audioItem.text}" (队列长度: ${this.audioQueue.length})`, 'info');
+            }
+
+            processAudioQueue() {
+                if (this.isSpeaking || this.audioQueue.length === 0) {
+                    this.log('无法处理音频队列: 正在播放或队列为空', 'info');
+                    return;
+                }
+
+                this.isSpeaking = true;
+                const audioItem = this.audioQueue.shift();
+
+                this.log(`开始处理音频队列项目: "${audioItem.text}"`, 'info');
+
+                // 取消之前的播放
+                window.speechSynthesis.cancel();
+
+                // 创建语音合成
+                const utterance = new SpeechSynthesisUtterance(audioItem.text);
+                utterance.lang = 'en-US';
+                utterance.rate = audioItem.rate;
+                utterance.pitch = 1;
+                utterance.volume = 1;
+
+                // 更新按钮状态
+                if (audioItem.buttonId) {
+                    this.updateAudioButtonState(audioItem.buttonId, '🔊 播放中...', true);
+                }
+
+                // 播放完成后的处理
+                utterance.onend = () => {
+                    this.isSpeaking = false;
+                    this.log(`✅ 播放完成: "${audioItem.text}"`, 'info');
+
+                    if (audioItem.buttonId) {
+                        this.updateAudioButtonState(audioItem.buttonId, '🔊 播放音频', false);
+                    }
+
+                    setTimeout(() => {
+                        this.processAudioQueue();
+                    }, 200);
+                };
+
+                // 错误处理
+                utterance.onerror = (event) => {
+                    this.log(`❌ 播放错误: "${audioItem.text}" - ${event.error}`, 'error');
+                    this.isSpeaking = false;
+
+                    if (audioItem.buttonId) {
+                        this.updateAudioButtonState(audioItem.buttonId, '🔊 播放音频', false);
+                    }
+
+                    setTimeout(() => {
+                        this.processAudioQueue();
+                    }, 200);
+                };
+
+                // 开始播放
+                window.speechSynthesis.speak(utterance);
+                this.log(`🎵 正在播放: "${audioItem.text}"`, 'info');
+            }
+
+            updateAudioButtonState(buttonId, text, disabled, state = 'normal') {
+                const audioBtn = document.getElementById(buttonId);
+                if (audioBtn) {
+                    audioBtn.textContent = text;
+                    audioBtn.disabled = disabled;
+                    this.log(`按钮状态更新: ${text} (disabled: ${disabled})`, 'info');
+
+                    if (state === 'error') {
+                        audioBtn.style.background = 'linear-gradient(135deg, #e53e3e, #c53030)';
+                    }
+                } else {
+                    this.log(`❌ 找不到按钮: ${buttonId}`, 'error');
+                }
+            }
+
+            // 模拟句子排序界面创建
+            createSentenceOrderInterface(question) {
+                const container = document.getElementById('sentenceOrderSimulator');
+
+                const html = `
+                    <div class="sentence-order-container">
+                        <div class="sentence-hint">
+                            <p>请将下面的单词拖拽到上方框中，组成正确的句子：</p>
+                            <div class="chinese-translation">中文释义：${question.chineseTranslation}</div>
+                            <div class="audio-controls">
+                                <button class="audio-btn" id="simulatedPlayAudioBtn">
+                                    🔊 播放音频
+                                </button>
+                            </div>
+                        </div>
+                        <div style="margin-top: 20px; padding: 15px; background: #f8fafc; border-radius: 8px;">
+                            <strong>原始句子：</strong> ${question.originalSentence}
+                        </div>
+                    </div>
+                `;
+
+                container.innerHTML = html;
+
+                // 添加事件监听器
+                const audioBtn = document.getElementById('simulatedPlayAudioBtn');
+                if (audioBtn) {
+                    audioBtn.addEventListener('click', () => {
+                        this.log('音频按钮被点击！', 'info');
+                        this.playSentenceAudio(question.originalSentence, 'simulatedPlayAudioBtn');
+                    });
+                    this.log('✅ 音频按钮事件监听器已添加', 'info');
+                } else {
+                    this.log('❌ 无法找到音频按钮', 'error');
+                }
+            }
+        }
+
+        const debugAudio = new DebugAudioSystem();
+
+        function testAudioImplementation() {
+            debugAudio.log('=== 测试音频实现 ===', 'info');
+
+            const testSentence = "Hello, this is a test sentence.";
+            debugAudio.playSentenceAudio(testSentence);
+        }
+
+        function testDirectSpeech() {
+            debugAudio.log('=== 直接测试语音合成 ===', 'info');
+
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance("Direct speech synthesis test");
+                utterance.lang = 'en-US';
+                utterance.onend = () => debugAudio.log('✅ 直接语音播放完成', 'info');
+                utterance.onerror = (e) => debugAudio.log(`❌ 直接语音错误: ${e.error}`, 'error');
+
+                window.speechSynthesis.speak(utterance);
+                debugAudio.log('🎵 开始直接语音播放', 'info');
+            } else {
+                debugAudio.log('❌ 浏览器不支持语音合成', 'error');
+            }
+        }
+
+        function testWithRealData() {
+            debugAudio.log('=== 使用真实数据测试 ===', 'info');
+
+            if (flashcardData && flashcardData.sentences && flashcardData.sentences.length > 0) {
+                const firstSentence = flashcardData.sentences[0];
+                debugAudio.log(`使用句子: ${firstSentence.english}`, 'info');
+                debugAudio.playSentenceAudio(firstSentence.english);
+            } else {
+                debugAudio.log('❌ 无法获取真实数据', 'error');
+            }
+        }
+
+        function checkDOMElements() {
+            debugAudio.log('=== 检查DOM元素 ===', 'info');
+
+            const audioBtn = document.getElementById('simulatedPlayAudioBtn');
+            if (audioBtn) {
+                debugAudio.log(`✅ 找到音频按钮: ${audioBtn.tagName}#${audioBtn.id}`, 'info');
+                debugAudio.log(`按钮文本: "${audioBtn.textContent}"`, 'info');
+                debugAudio.log(`按钮是否禁用: ${audioBtn.disabled}`, 'info');
+                debugAudio.log(`按钮事件监听器数量: ${getEventListeners ? Object.keys(getEventListeners(audioBtn) || {}).length : '无法检测'}`, 'info');
+            } else {
+                debugAudio.log('❌ 未找到音频按钮，需要先模拟界面', 'error');
+            }
+        }
+
+        function simulateSentenceOrder() {
+            debugAudio.log('=== 模拟句子排序界面 ===', 'info');
+
+            if (flashcardData && flashcardData.sentences && flashcardData.sentences.length > 0) {
+                const sentence = flashcardData.sentences[0];
+
+                // 创建问题对象
+                const question = {
+                    originalSentence: sentence.english,
+                    chineseTranslation: sentence.chinese,
+                    unit: sentence.unit
+                };
+
+                debugAudio.createSentenceOrderInterface(question);
+                debugAudio.log('✅ 句子排序界面已创建', 'info');
+            } else {
+                debugAudio.log('❌ 无法获取句子数据', 'error');
+            }
+        }
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            debugAudio.log('音频调试页面已加载', 'info');
+            debugAudio.log(`当前浏览器: ${navigator.userAgent}`, 'info');
+            debugAudio.log(`语音合成支持: ${'speechSynthesis' in window ? '是' : '否'}`, 'info');
+
+            if ('speechSynthesis' in window) {
+                const voices = speechSynthesis.getVoices();
+                const englishVoices = voices.filter(voice => voice.lang.startsWith('en'));
+                debugAudio.log(`可用语音数量: ${voices.length}`, 'info');
+                debugAudio.log(`英语语音数量: ${englishVoices.length}`, 'info');
+            }
+        });
+
+        // 确保语音列表已加载
+        if (speechSynthesis && speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = function() {
+                const voices = speechSynthesis.getVoices();
+                debugAudio.log(`语音列表更新，共 ${voices.length} 个语音`, 'info');
+            };
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>改进的句子排序UI测试</title>
+    <link rel="stylesheet" href="test.css">
+    <style>
+        .test-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8f9fa;
+            min-height: 100vh;
+        }
+        .test-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .demo-section {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .feature-item {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #4299e1;
+        }
+        .feature-item h4 {
+            color: #2b6cb8;
+            margin-bottom: 8px;
+        }
+        .test-button {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(72, 187, 120, 0.3);
+        }
+        .test-button:hover {
+            background: linear-gradient(135deg, #38a169, #2f855a);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <header class="test-header">
+            <h1>改进的句子排序UI测试</h1>
+            <p>测试新的拖拽交互界面和音频播放功能</p>
+        </header>
+
+        <div class="demo-section">
+            <h2>功能特性</h2>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <h4>🎯 多框组合</h4>
+                    <p>多个独立的组合框，每个框只能放置一个单词</p>
+                </div>
+                <div class="feature-item">
+                    <h4>🔊 音频播放</h4>
+                    <p>Web Speech API音频播放，支持标准英语发音</p>
+                </div>
+                <div class="feature-item">
+                    <h4>🔄 双向拖拽</h4>
+                    <p>单词可以从池子拖到框中，也可以从框拖回池子</p>
+                </div>
+                <div class="feature-item">
+                    <h4>✨ 视觉反馈</h4>
+                    <p>丰富的视觉效果和拖拽状态指示</p>
+                </div>
+                <div class="feature-item">
+                    <h4>📱 响应式设计</h4>
+                    <p>完美适配桌面和移动设备</p>
+                </div>
+                <div class="feature-item">
+                    <h4>🎨 优雅界面</h4>
+                    <p>现代化的UI设计和流畅的动画效果</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>快速测试</h2>
+            <p>点击下面的按钮开始测试改进后的句子排序功能：</p>
+            <br>
+            <button class="test-button" onclick="window.location.href='test.html'">
+                进入测试系统
+            </button>
+        </div>
+
+        <div class="demo-section">
+            <h2>使用说明</h2>
+            <ol>
+                <li><strong>选择测试类型</strong>：在测试设置页面选择"句子排序 (拖拽排序)"</li>
+                <li><strong>查看中文释义</strong>：每个题目都会显示中文翻译，帮助理解</li>
+                <li><strong>播放音频</strong>：点击"🔊 播放音频"按钮听取标准发音</li>
+                <li><strong>拖拽单词</strong>：从下方的单词池拖拽单词到上方的组合框中</li>
+                <li><strong>调整顺序</strong>：可以随时调整单词的顺序，或将单词拖回池子</li>
+                <li><strong>使用按钮</strong>：
+                    <ul>
+                        <li><strong>重置</strong>：重新打乱单词池中的单词</li>
+                        <li><strong>清空</strong>：清空所有组合框中的单词</li>
+                    </ul>
+                </li>
+                <li><strong>提交答案</strong>：完成后点击"提交答案"或"完成测试"</li>
+                <li><strong>查看结果</strong>：系统会显示详细的答题结果和重点词汇解读</li>
+            </ol>
+        </div>
+
+        <div class="demo-section">
+            <h2>技术特点</h2>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <h4>HTML5拖拽API</h4>
+                    <p>使用原生HTML5拖拽API，兼容性良好</p>
+                </div>
+                <div class="feature-item">
+                    <h4>Web Speech API</h4>
+                    <p>集成语音合成功能，提供标准英语发音</p>
+                </div>
+                <div class="feature-item">
+                    <h4>CSS3动画</h4>
+                    <p>流畅的CSS3动画和过渡效果</p>
+                </div>
+                <div class="feature-item">
+                    <h4>响应式布局</h4>
+                    <p>Flexbox和Grid布局，完美适配各种屏幕</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('改进的句子排序UI测试页面已加载');
+
+            // 检查浏览器兼容性
+            function checkCompatibility() {
+                const features = [];
+
+                if ('draggable' in document.createElement('div')) {
+                    features.push('✅ HTML5拖拽支持');
+                } else {
+                    features.push('❌ HTML5拖拽不支持');
+                }
+
+                if ('speechSynthesis' in window) {
+                    features.push('✅ 语音合成支持');
+                } else {
+                    features.push('❌ 语音合成不支持');
+                }
+
+                if ('flex' in document.documentElement.style) {
+                    features.push('✅ Flexbox布局支持');
+                } else {
+                    features.push('❌ Flexbox布局不支持');
+                }
+
+                return features;
+            }
+
+            const compatibility = checkCompatibility();
+            console.log('浏览器兼容性检查：', compatibility);
+        });
+    </script>
+</body>
+</html>

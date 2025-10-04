@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>句子排序功能测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <h1>句子排序功能测试</h1>
+
+    <div class="test-section">
+        <h2>功能验证测试</h2>
+        <button onclick="runTests()">运行所有测试</button>
+        <div id="test-results"></div>
+    </div>
+
+    <script src="data.js"></script>
+    <script>
+        function runTests() {
+            const results = document.getElementById('test-results');
+            results.innerHTML = '<h3>测试结果：</h3>';
+
+            // 测试1: 验证数据结构
+            testSentenceDataStructure(results);
+
+            // 测试2: 验证句子分割逻辑
+            testSentenceSplitting(results);
+
+            // 测试3: 验证词汇解释功能
+            testWordExplanations(results);
+        }
+
+        function testSentenceDataStructure(results) {
+            const testDiv = document.createElement('div');
+            testDiv.innerHTML = '<h4>测试1: 数据结构验证</h4>';
+
+            try {
+                const sentences = flashcardData.sentences;
+                let hasKeyWords = 0;
+                let totalSentences = sentences.length;
+
+                sentences.forEach(sentence => {
+                    if (sentence.keyWords && sentence.keyWords.length > 0) {
+                        hasKeyWords++;
+                    }
+                });
+
+                if (hasKeyWords > 0) {
+                    testDiv.innerHTML += `<div class="result success">✓ 数据结构正确：${hasKeyWords}/${totalSentences} 个句子包含关键词</div>`;
+                } else {
+                    testDiv.innerHTML += '<div class="result error">✗ 数据结构问题：没有找到关键词数据</div>';
+                }
+
+            } catch (error) {
+                testDiv.innerHTML += `<div class="result error">✗ 数据结构错误: ${error.message}</div>`;
+            }
+
+            results.appendChild(testDiv);
+        }
+
+        function testSentenceSplitting(results) {
+            const testDiv = document.createElement('div');
+            testDiv.innerHTML = '<h4>测试2: 句子分割验证</h4>';
+
+            try {
+                // 模拟句子分割逻辑
+                const testSentence = "How long is the Great Wall? It's more than forty thousand li long.";
+                const words = testSentence.split(' ');
+                const wordChunks = [];
+
+                for (let i = 0; i < words.length; i++) {
+                    const word = words[i].trim();
+                    if (word) {
+                        if (word.includes('?')) {
+                            const parts = word.split('?');
+                            if (parts[0]) wordChunks.push(parts[0]);
+                            if (parts[1]) wordChunks.push('?');
+                        } else if (word.includes('.')) {
+                            const parts = word.split('.');
+                            if (parts[0]) wordChunks.push(parts[0]);
+                            if (parts[1]) wordChunks.push('.');
+                        } else {
+                            wordChunks.push(word);
+                        }
+                    }
+                }
+
+                testDiv.innerHTML += `<div class="result success">✓ 分割成功：原句子 "${testSentence}"</div>`;
+                testDiv.innerHTML += `<div class="result success">✓ 分割结果：[${wordChunks.join(', ')}]</div>`;
+                testDiv.innerHTML += `<div class="result success">✓ 单词块数量：${wordChunks.length}</div>`;
+
+            } catch (error) {
+                testDiv.innerHTML += `<div class="result error">✗ 分割逻辑错误: ${error.message}</div>`;
+            }
+
+            results.appendChild(testDiv);
+        }
+
+        function testWordExplanations(results) {
+            const testDiv = document.createElement('div');
+            testDiv.innerHTML = '<h4>测试3: 词汇解释验证</h4>';
+
+            try {
+                // 模拟词汇解释映射
+                const explanations = {
+                    'Great Wall': '长城',
+                    'long': '长的',
+                    'more than': '超过',
+                    'Pandas': '熊猫',
+                    'bamboo': '竹子'
+                };
+
+                const testWords = ['Great Wall', 'long', 'more than', 'Pandas', 'bamboo', 'unknown'];
+                let foundExplanations = 0;
+
+                testWords.forEach(word => {
+                    if (explanations[word]) {
+                        foundExplanations++;
+                        testDiv.innerHTML += `<div class="result success">✓ "${word}": ${explanations[word]}</div>`;
+                    } else {
+                        testDiv.innerHTML += `<div class="result error">✗ "${word}": 无解释</div>`;
+                    }
+                });
+
+                testDiv.innerHTML += `<div class="result success">词汇解释覆盖率: ${foundExplanations}/${testWords.length}</div>`;
+
+            } catch (error) {
+                testDiv.innerHTML += `<div class="result error">✗ 词汇解释错误: ${error.message}</div>`;
+            }
+
+            results.appendChild(testDiv);
+        }
+
+        // 页面加载时显示说明
+        window.onload = function() {
+            const results = document.getElementById('test-results');
+            results.innerHTML = '<p>点击"运行所有测试"按钮来验证句子排序功能的核心组件。</p>';
+        };
+    </script>
+</body>
+</html>

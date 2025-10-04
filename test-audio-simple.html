@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音频按钮测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .test-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .audio-btn {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+        .audio-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, #38a169, #2f855a);
+        }
+        .audio-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        .log {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔊 音频按钮功能测试</h1>
+
+    <div class="test-section">
+        <h2>测试1: 直接音频播放</h2>
+        <p>测试基本的语音合成功能：</p>
+        <button class="audio-btn" onclick="testDirectSpeech()">直接播放测试</button>
+    </div>
+
+    <div class="test-section">
+        <h2>测试2: 模拟系统音频播放</h2>
+        <p>使用与测试系统相同的音频播放方法：</p>
+        <div id="audioContainer">
+            <button class="audio-btn" id="playAudioBtn">🔊 播放音频</button>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>测试3: 模拟完整创建过程</h2>
+        <p>动态创建音频按钮并添加事件监听器：</p>
+        <button class="audio-btn" onclick="createAudioButton()">创建音频按钮</button>
+        <div id="dynamicContainer" style="margin-top: 10px;"></div>
+    </div>
+
+    <div class="log" id="logOutput">
+        <div>日志输出：</div>
+    </div>
+
+    <script>
+        class AudioTestSystem {
+            constructor() {
+                this.audioQueue = [];
+                this.isSpeaking = false;
+            }
+
+            log(message) {
+                const logOutput = document.getElementById('logOutput');
+                const logEntry = document.createElement('div');
+                const timestamp = new Date().toLocaleTimeString();
+                logEntry.textContent = `[${timestamp}] ${message}`;
+                logOutput.appendChild(logEntry);
+                logOutput.scrollTop = logOutput.scrollHeight;
+                console.log(`[AUDIO-TEST] ${message}`);
+            }
+
+            // 复制测试系统的音频播放方法
+            playSentenceAudio(sentence, buttonId = 'playAudioBtn') {
+                this.log(`开始播放句子音频: "${sentence}"`);
+
+                if ('speechSynthesis' in window) {
+                    this.log('浏览器支持语音合成功能');
+
+                    // 添加到音频队列
+                    this.addToAudioQueue({
+                        type: 'sentence',
+                        text: sentence,
+                        buttonId: buttonId,
+                        rate: 0.9
+                    });
+                    this.processAudioQueue();
+                } else {
+                    this.log('❌ 浏览器不支持语音合成功能');
+                    this.updateAudioButtonState(buttonId, '🔇 不支持音频', true, 'error');
+                }
+            }
+
+            addToAudioQueue(audioItem) {
+                this.audioQueue.push(audioItem);
+                if (this.audioQueue.length > 5) {
+                    this.audioQueue = this.audioQueue.slice(-5);
+                }
+                this.log(`添加到音频队列: "${audioItem.text}" (队列长度: ${this.audioQueue.length})`);
+            }
+
+            processAudioQueue() {
+                if (this.isSpeaking || this.audioQueue.length === 0) {
+                    this.log('无法处理音频队列: 正在播放或队列为空');
+                    return;
+                }
+
+                this.isSpeaking = true;
+                const audioItem = this.audioQueue.shift();
+                this.log(`开始处理音频队列项目: "${audioItem.text}"`);
+
+                // 取消之前的播放
+                window.speechSynthesis.cancel();
+
+                // 创建语音合成
+                const utterance = new SpeechSynthesisUtterance(audioItem.text);
+                utterance.lang = 'en-US';
+                utterance.rate = audioItem.rate;
+                utterance.pitch = 1;
+                utterance.volume = 1;
+
+                // 更新按钮状态
+                if (audioItem.buttonId) {
+                    this.updateAudioButtonState(audioItem.buttonId, '🔊 播放中...', true);
+                }
+
+                // 播放完成后的处理
+                utterance.onend = () => {
+                    this.isSpeaking = false;
+                    this.log(`✅ 播放完成: "${audioItem.text}"`);
+
+                    if (audioItem.buttonId) {
+                        this.updateAudioButtonState(audioItem.buttonId, '🔊 播放音频', false);
+                    }
+
+                    setTimeout(() => {
+                        this.processAudioQueue();
+                    }, 200);
+                };
+
+                // 错误处理
+                utterance.onerror = (event) => {
+                    this.log(`❌ 播放错误: "${audioItem.text}" - ${event.error}`);
+                    this.isSpeaking = false;
+
+                    if (audioItem.buttonId) {
+                        this.updateAudioButtonState(audioItem.buttonId, '🔊 播放音频', false);
+                    }
+
+                    setTimeout(() => {
+                        this.processAudioQueue();
+                    }, 200);
+                };
+
+                // 开始播放
+                window.speechSynthesis.speak(utterance);
+                this.log(`🎵 正在播放: "${audioItem.text}"`);
+            }
+
+            updateAudioButtonState(buttonId, text, disabled, state = 'normal') {
+                const audioBtn = document.getElementById(buttonId);
+                if (audioBtn) {
+                    audioBtn.textContent = text;
+                    audioBtn.disabled = disabled;
+                    this.log(`按钮状态更新: ${text} (disabled: ${disabled})`);
+
+                    if (state === 'error') {
+                        audioBtn.style.background = 'linear-gradient(135deg, #e53e3e, #c53030)';
+                    }
+                } else {
+                    this.log(`❌ 找不到按钮: ${buttonId}`);
+                }
+            }
+        }
+
+        const audioTest = new AudioTestSystem();
+
+        // 测试1: 直接语音合成
+        function testDirectSpeech() {
+            audioTest.log('=== 测试1: 直接语音合成 ===');
+
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance("Hello, this is a direct speech test.");
+                utterance.lang = 'en-US';
+                utterance.onend = () => audioTest.log('✅ 直接语音播放完成');
+                utterance.onerror = (e) => audioTest.log(`❌ 直接语音错误: ${e.error}`);
+
+                window.speechSynthesis.speak(utterance);
+                audioTest.log('🎵 开始直接语音播放');
+            } else {
+                audioTest.log('❌ 浏览器不支持语音合成');
+            }
+        }
+
+        // 测试2: 模拟系统音频播放
+        document.addEventListener('DOMContentLoaded', function() {
+            const audioBtn = document.getElementById('playAudioBtn');
+            if (audioBtn) {
+                audioBtn.addEventListener('click', () => {
+                    audioTest.log('音频按钮被点击！');
+                    const testSentence = "How long is the Great Wall? It's more than forty thousand li long.";
+                    audioTest.playSentenceAudio(testSentence);
+                });
+                audioTest.log('✅ 音频按钮事件监听器已添加');
+            } else {
+                audioTest.log('❌ 找不到音频按钮');
+            }
+        });
+
+        // 测试3: 动态创建音频按钮
+        function createAudioButton() {
+            audioTest.log('=== 测试3: 动态创建音频按钮 ===');
+
+            const container = document.getElementById('dynamicContainer');
+
+            // 创建与测试系统相同的HTML结构
+            container.innerHTML = `
+                <div class="audio-controls">
+                    <button class="audio-btn" id="dynamicPlayAudioBtn">
+                        🔊 播放音频
+                    </button>
+                </div>
+            `;
+
+            // 添加事件监听器
+            const audioBtn = document.getElementById('dynamicPlayAudioBtn');
+            if (audioBtn) {
+                audioBtn.addEventListener('click', () => {
+                    audioTest.log('动态创建的音频按钮被点击！');
+                    const testSentence = "This is a dynamically created audio button test.";
+                    audioTest.playSentenceAudio(testSentence, 'dynamicPlayAudioBtn');
+                });
+                audioTest.log('✅ 动态音频按钮事件监听器已添加');
+            } else {
+                audioTest.log('❌ 找不到动态创建的音频按钮');
+            }
+        }
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            audioTest.log('音频测试页面已加载');
+            audioTest.log(`当前浏览器: ${navigator.userAgent}`);
+            audioTest.log(`语音合成支持: ${'speechSynthesis' in window ? '是' : '否'}`);
+
+            if ('speechSynthesis' in window) {
+                // 等待语音列表加载
+                setTimeout(() => {
+                    const voices = speechSynthesis.getVoices();
+                    const englishVoices = voices.filter(voice => voice.lang.startsWith('en'));
+                    audioTest.log(`可用语音数量: ${voices.length}`);
+                    audioTest.log(`英语语音数量: ${englishVoices.length}`);
+                }, 500);
+            }
+        });
+
+        // 确保语音列表已加载
+        if (speechSynthesis && speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = function() {
+                const voices = speechSynthesis.getVoices();
+                audioTest.log(`语音列表更新，共 ${voices.length} 个语音`);
+            };
+        }
+    </script>
+</body>
+</html>
