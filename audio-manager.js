@@ -34,26 +34,117 @@ class AudioManager {
      * 生成音频文件路径
      * @param {string} text - 要播放的文本
      * @param {string} type - 类型: 'vocabulary', 'phrases', 'sentences'
+     * @param {Object} options - 选项，包含keyWords等信息
      * @returns {string} 音频文件路径
      */
-    getAudioFilePath(text, type) {
-        // 将文本转换为安全的文件名
+    getAudioFilePath(text, type, options = {}) {
+        // 生成可能的文件名候选列表
+        const candidates = this.generateFilenameCandidates(text, options);
+
+        // 返回第一个候选文件路径
+        if (candidates.length > 0) {
+            return `${this.audioBasePath}${type}/${candidates[0]}`;
+        }
+
+        // 如果没有候选，使用传统的完整文件名
         const filename = this.sanitizeFilename(text) + '.mp3';
         return `${this.audioBasePath}${type}/${filename}`;
     }
 
     /**
+     * 生成文件名候选列表
+     * @param {string} text - 原始文本
+     * @param {Object} options - 选项，包含keyWords等信息
+     * @returns {Array} 文件名候选列表
+     */
+    generateFilenameCandidates(text, options = {}) {
+        const candidates = [];
+
+        // 策略1: 如果有keyWords，使用关键词生成短文件名
+        if (options.keyWords && Array.isArray(options.keyWords) && options.keyWords.length > 0) {
+            const keywordFilename = this.generateKeywordFilename(text, options.keyWords);
+            if (keywordFilename) {
+                candidates.push(keywordFilename + '.mp3');
+            }
+        }
+
+        // 策略2: 使用句子的前几个重要词汇（取前30个字符）
+        const shortFilename = this.sanitizeFilename(text, 30);
+        if (shortFilename.length < text.length) {
+            candidates.push(shortFilename + '.mp3');
+        }
+
+        // 策略3: 使用传统截断的完整文件名（50个字符）
+        const traditionalFilename = this.sanitizeFilename(text, 50);
+        candidates.push(traditionalFilename + '.mp3');
+
+        // 策略4: 使用移除标点符号后的完整句子（40个字符）
+        const noPunctuationFilename = this.sanitizeFilenameWithoutPunctuation(text, 40);
+        if (noPunctuationFilename !== traditionalFilename) {
+            candidates.push(noPunctuationFilename + '.mp3');
+        }
+
+        return candidates;
+    }
+
+    /**
+     * 基于关键词生成文件名
+     * @param {string} text - 原始文本
+     * @param {Array} keyWords - 关键词数组
+     * @returns {string} 基于关键词的文件名
+     */
+    generateKeywordFilename(text, keyWords) {
+        if (!keyWords || keyWords.length === 0) return '';
+
+        // 清理和转换关键词
+        const cleanKeywords = keyWords.map(keyword =>
+            keyword.toLowerCase()
+                .replace(/[^\w\s]/g, '')
+                .replace(/\s+/g, '_')
+                .trim()
+        ).filter(keyword => keyword.length > 0);
+
+        // 如果有关键词，使用前3-4个关键词组成文件名
+        if (cleanKeywords.length > 0) {
+            const selectedKeywords = cleanKeywords.slice(0, Math.min(4, cleanKeywords.length));
+            return selectedKeywords.join('_');
+        }
+
+        return '';
+    }
+
+    /**
      * 将文本转换为安全的文件名
      * @param {string} text - 原始文本
+     * @param {number} maxLength - 最大长度限制
      * @returns {string} 安全的文件名
      */
-    sanitizeFilename(text) {
+    sanitizeFilename(text, maxLength = 50) {
         return text
             .toLowerCase()
-            .replace(/[<>:"/\\|?*]/g, '') // 移除不安全字符
-            .replace(/[^\w\s-]/g, '_') // 替换特殊字符为下划线
+            .replace(/[<>:"/\\|?*]/g, '') // 移除不安全字符，但保留撇号
+            .replace(/[^\w\s'-]/g, '_') // 替换其他特殊字符为下划线
             .replace(/\s+/g, '_') // 替换空格为下划线
-            .substring(0, 50); // 限制长度
+            .replace(/_+/g, '_') // 合并连续下划线
+            .replace(/^_|_$/g, '') // 移除开头和结尾的下划线
+            .substring(0, maxLength); // 限制长度
+    }
+
+    /**
+     * 生成移除标点符号的文件名
+     * @param {string} text - 原始文本
+     * @param {number} maxLength - 最大长度限制
+     * @returns {string} 安全的文件名
+     */
+    sanitizeFilenameWithoutPunctuation(text, maxLength = 40) {
+        return text
+            .toLowerCase()
+            .replace(/[<>:"/\\|?*.,!?;"]/g, '') // 移除大部分标点符号，但保留撇号
+            .replace(/[^\w\s'-]/g, '_') // 替换其他特殊字符为下划线
+            .replace(/\s+/g, '_') // 替换空格为下划线
+            .replace(/_+/g, '_') // 合并多个下划线
+            .replace(/^_|_$/g, '') // 移除开头和结尾的下划线
+            .substring(0, maxLength); // 限制长度
     }
 
     /**
@@ -99,9 +190,36 @@ class AudioManager {
      * @returns {Promise<boolean>} 播放是否成功
      */
     async playLocalAudio(text, type, options = {}) {
-        return new Promise((resolve) => {
-            const audioPath = this.getAudioFilePath(text, type);
+        // 生成候选文件路径列表
+        const candidates = this.generateFilenameCandidates(text, options);
 
+        // 尝试每个候选文件
+        for (const filename of candidates) {
+            const audioPath = `${this.audioBasePath}${type}/${filename}`;
+
+            try {
+                const success = await this.tryPlayAudioFile(audioPath, options);
+                if (success) {
+                    console.log(`成功播放音频文件: ${filename}`);
+                    return true;
+                }
+            } catch (error) {
+                console.warn(`尝试播放音频文件失败: ${filename}`, error);
+            }
+        }
+
+        console.warn(`所有候选音频文件都无法播放: ${text}`);
+        return false;
+    }
+
+    /**
+     * 尝试播放单个音频文件
+     * @param {string} audioPath - 音频文件路径
+     * @param {Object} options - 选项
+     * @returns {Promise<boolean>} 播放是否成功
+     */
+    async tryPlayAudioFile(audioPath, options = {}) {
+        return new Promise((resolve) => {
             // 检查缓存
             if (this.audioCache.has(audioPath)) {
                 const cachedAudio = this.audioCache.get(audioPath);
@@ -120,7 +238,6 @@ class AudioManager {
             });
 
             audio.addEventListener('error', (e) => {
-                console.warn(`音频文件加载失败: ${audioPath}`, e);
                 resolve(false);
             });
 
@@ -139,10 +256,9 @@ class AudioManager {
             // 设置超时
             setTimeout(() => {
                 if (audio.readyState < 4) { // HAVE_ENOUGH_DATA
-                    console.warn(`音频加载超时: ${audioPath}`);
                     resolve(false);
                 }
-            }, 5000);
+            }, 3000); // 缩短超时时间
         });
     }
 

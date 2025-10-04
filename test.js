@@ -470,7 +470,7 @@ class TestSystem {
         // 直接在创建时添加事件监听器
         audioBtn.addEventListener('click', () => {
             console.log('音频按钮被点击，播放句子:', question.originalSentence);
-            this.playSentenceAudio(question.originalSentence);
+            this.playSentenceAudio(question.originalSentence, 'playAudioBtn', question.keyWords || []);
         });
         console.log('音频按钮事件监听器已添加');
 
@@ -663,7 +663,7 @@ class TestSystem {
     }
 
     // 音频播放功能 - 优化版
-    async playSentenceAudio(sentence, buttonId = 'playAudioBtn') {
+    async playSentenceAudio(sentence, buttonId = 'playAudioBtn', keyWords = []) {
         // 优先使用音频管理器播放本地文件
         if (this.audioManager) {
             try {
@@ -671,7 +671,7 @@ class TestSystem {
                 const success = await this.audioManager.playAudio(
                     sentence,
                     'sentences',
-                    { rate: 0.9 }
+                    { rate: 0.9, keyWords: keyWords }
                 );
 
                 if (success) {

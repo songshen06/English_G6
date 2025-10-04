@@ -240,9 +240,16 @@ class FlashcardApp {
         // 优先使用音频管理器播放本地文件
         if (this.audioManager) {
             try {
+                const options = {};
+                // 如果是句子且有keyWords，传递keyWords
+                if (this.currentData === 'sentences' && currentCard.keyWords) {
+                    options.keyWords = currentCard.keyWords;
+                }
+
                 const success = await this.audioManager.playAudio(
                     currentCard.english,
-                    this.currentData
+                    this.currentData,
+                    options
                 );
 
                 if (success) {
